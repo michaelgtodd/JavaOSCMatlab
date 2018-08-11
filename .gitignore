@@ -7,3 +7,4 @@ pom.xml.tag
 /README.html
 # EMMA maven plugin report file
 coverage.ec
+*.class

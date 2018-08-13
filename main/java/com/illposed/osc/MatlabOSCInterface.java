@@ -1,59 +1,102 @@
 package com.illposed.osc;
 
-import java.util.Date;
-
 public class MatlabOSCInterface {
 
-    private MatlabOSCListener OSCListener;
+    private MatlabOSCListener Listener;
 
-    @Override
-    public void acceptMessage(Date arg0, OSCMessage arg1) {
-        this.date = arg0;
-        this.message = arg1;
+    private OSCPortIn InPort;
+
+    public MatlabOSCInterface() {}
+
+    public void initialize (int Port)
+    {
+        try {
+            InPort = new OSCPortIn(Port);
+            Listener = new MatlabOSCListener();
+        }
+        catch (Exception e)
+        {
+            System.out.println("It's all fucked, restart matlab.");
+            this.finalize();
+        }
     }
 
-    public Date getTimeStamp(){
-        return date;
+    public void registerAddress (String address)
+    {
+        InPort.addListener(address, Listener);
     }
 
-    public OSCMessage getMessage(){
-        return message;
+    public void start ()
+    {
+        InPort.startListening();
     }
 
-    public Object[] getMessageArguments(){
+
+
+    public static Object[] getMessageArguments(OSCMessage message){
         Object[] arguments = null;
         if(message != null){
-            arguments = message.getArguments();
+            arguments = message.getArguments().toArray();
             message = null;
         }
         return arguments;
     }
 
-    public double[] getMessageArgumentsAsDouble(){
-        Object[] arguments = getMessageArguments();
+    public static double[] getNumericArguments(OSCMessage message){
+        Object[] arguments = getMessageArguments(message);
         double[] doubleArguments = null;
         if(arguments != null && arguments.length > 0){
             doubleArguments = new double[arguments.length];
             for(int i = 0 ; i < arguments.length ; i++){
                 //since it is not known if the object is either a float, integer or double
                 // do a to string and cast it.
-                // this will fail for non nummeric data types
-                doubleArguments[i] = Double.valueOf(arguments[i].toString());
+                // this will fail for non numeric data types
+                try
+                {
+                    doubleArguments[i] = Double.valueOf(arguments[i].toString());
+                }
+                catch (Exception e)
+                {
+
+                }
             }
         }
         return doubleArguments;
     }
 
-    public String[] getMessageArgumentsAsString(){
-        Object[] arguments = getMessageArguments();
+    public static String[] getStringArguments(OSCMessage message){
+        Object[] arguments = getMessageArguments(message);
         String[] stringArguments = null;
         if(arguments != null && arguments.length > 0){
             stringArguments = new String[arguments.length];
             for(int i = 0 ; i < arguments.length ; i++){
-                stringArguments[i] = arguments[i].toString();
+                try {
+                    Double.valueOf(arguments[i].toString());
+                }
+                catch (Exception e)
+                {
+                    stringArguments[i] = arguments[i].toString();
+                }
             }
         }
         return stringArguments;
+    }
+
+    public static String getMessageName(OSCMessage message)
+    {
+        return message.getAddress();
+    }
+
+    public void close ()
+    {
+        this.finalize();
+    }
+
+    public void finalize ()
+    {
+        InPort.stopListening();
+        InPort.close();
+        InPort = null;
     }
 
     public static void main(String... args){}

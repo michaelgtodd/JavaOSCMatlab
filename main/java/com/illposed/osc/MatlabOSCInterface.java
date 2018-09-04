@@ -8,7 +8,7 @@ public class MatlabOSCInterface {
     private MatlabOSCListener Listener;
 
     private OSCPortIn InPort;
-    private ArrayList<OSCPortOut> Senders;
+    private ArrayList<OSCPortOut> Senders = new ArrayList<>();
 
     public MatlabOSCInterface() {}
 
@@ -29,12 +29,11 @@ public class MatlabOSCInterface {
     {
         try
         {
-            System.out.println ("Address: " + ipAddress + " port: " + port);
             Senders.add(new OSCPortOut(InetAddress.getByName(ipAddress), port));
         }
         catch (Exception e)
         {
-            System.out.println("Couldn't register sender: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

@@ -1,10 +1,14 @@
 package com.illposed.osc;
 
+import java.net.InetAddress;
+import java.util.ArrayList;
+
 public class MatlabOSCInterface {
 
     private MatlabOSCListener Listener;
 
     private OSCPortIn InPort;
+    private ArrayList<OSCPortOut> Senders;
 
     public MatlabOSCInterface() {}
 
@@ -21,6 +25,18 @@ public class MatlabOSCInterface {
         }
     }
 
+    public void registerSender (String ipAddress, int port)
+    {
+        try
+        {
+            Senders.add(new OSCPortOut(InetAddress.getByName(ipAddress), port));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Couldn't register sender");
+        }
+    }
+
     public void registerAddress (String address)
     {
         InPort.addListener(address, Listener);
@@ -31,7 +47,50 @@ public class MatlabOSCInterface {
         InPort.startListening();
     }
 
+    public void sendString (String address, String value)
+    {
+        ArrayList<Object> args = new ArrayList<>();
+        args.add(value);
+        OSCMessage msg = new OSCMessage (address, args);
+        try {
+            for(OSCPortOut o: Senders)
+            {
+                o.send(msg);
+            };
+        } catch (Exception e) {
+            System.out.println("Couldn't send");
+        }
+    }
 
+    public void sendInt(String address, int value)
+    {
+        ArrayList<Object> args = new ArrayList<>();
+        args.add(value);
+        OSCMessage msg = new OSCMessage (address, args);
+        try {
+            for(OSCPortOut o: Senders)
+            {
+                o.send(msg);
+            };
+        } catch (Exception e) {
+            System.out.println("Couldn't send");
+        }
+    }
+
+    public void sendDouble(String address, double value)
+    {
+        ArrayList<Object> args = new ArrayList<>();
+        args.add(value);
+        OSCMessage msg = new OSCMessage (address, args);
+        try {
+            for(OSCPortOut o: Senders)
+            {
+                o.send(msg);
+            };
+        } catch (Exception e) {
+            System.out.println("Couldn't send");
+        }
+    }
 
     public static Object[] getMessageArguments(OSCMessage message){
         Object[] arguments = null;

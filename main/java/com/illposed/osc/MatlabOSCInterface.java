@@ -33,7 +33,7 @@ public class MatlabOSCInterface {
         }
         catch (Exception e)
         {
-            System.out.println("Couldn't register sender");
+            System.out.println("Couldn't register sender: " + e.getMessage());
         }
     }
 

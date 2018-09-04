@@ -29,6 +29,7 @@ public class MatlabOSCInterface {
     {
         try
         {
+            System.out.println ("Address: " + ipAddress + " port: " + port);
             Senders.add(new OSCPortOut(InetAddress.getByName(ipAddress), port));
         }
         catch (Exception e)
